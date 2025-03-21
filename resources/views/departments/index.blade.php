@@ -9,8 +9,18 @@
     @endif
 @stop
 
+
+
+
+
 @section('content')
     @include('departments.import')
+    <br>
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
     <hr>
 
     <table class="table table-hover" id="departments-table">

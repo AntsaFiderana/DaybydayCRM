@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Ramsey\Uuid\Uuid;
 use Session;
 use App\Models\Department;
@@ -24,20 +25,25 @@ class DepartmentsController extends Controller
     {
         $request->validate(['csv_file' => 'required|file|mimes:csv,txt']);
         $csvfile=$request->file('csv_file');
-        if(($handle=fopen($csvfile,"r"))!==false){
-            $firstRow = fgetcsv($handle, 1000, ';');
-            while(($data=fgetcsv($handle, 1000, ';')) !== false){
-                $row=array_combine($firstRow, $data);
-
+        try {
+            DB::beginTransaction();
+            if(($handle=fopen($csvfile,"r"))!==false){
+                $firstRow = fgetcsv($handle, 1000, ';');
+                while(($data=fgetcsv($handle, 1000, ';')) !== false){
+                    $row=array_combine($firstRow, $data);
+                    $department=new Department($row);
+                    $department->save();
+                }
+                fclose($handle);
             }
+            DB::commit();
         }
-
-        #fgetcsv($handle);
-
-
-        var_dump($firstRow);
+        catch(\Exception $e){
+            DB::rollback();
+            echo $e->getMessage();
+        }
+        return redirect()->route('departments.index')->with('success', 'Departments imported');
     }
-
 
 
     /**
