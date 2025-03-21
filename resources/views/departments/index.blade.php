@@ -1,4 +1,5 @@
 @extends('layouts.master')
+
 @section('heading')
     {{__('All Departments')}}
     @if(Entrust::hasRole('administrator') || Entrust::hasRole('owner'))
@@ -7,7 +8,11 @@
         </a>
     @endif
 @stop
+
 @section('content')
+    @include('departments.import')
+    <hr>
+
     <table class="table table-hover" id="departments-table">
         <thead>
         <tr>
