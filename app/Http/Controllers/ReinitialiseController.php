@@ -45,14 +45,13 @@ class ReinitialiseController extends Controller
         Absence::truncate();
         Activity::truncate();
         Appointment::truncate();
-        BusinessHour::truncate();
+        #BusinessHour::truncate();
         Client::truncate();
         Comment::truncate();
         Contact::truncate();
         //CreditLine::truncate();
         //CreditNote::truncate();
-
-        Department::truncate();
+        #Department::truncate();
         Document::truncate();
         #Industry::truncate();
         Integration::truncate();
@@ -62,14 +61,14 @@ class ReinitialiseController extends Controller
         Mail::truncate();
         Offer::truncate();
         Payment::truncate();
-        Permission::truncate();
-        PermissionRole::truncate();
+        #Permission::truncate();
+        #PermissionRole::truncate();
         Product::truncate();
         Project::truncate();
         #Role::truncate();
-        RoleUser::truncate();
+        #RoleUser::truncate();
         #Setting::truncate();
-        Status::truncate();
+        #Status::truncate();
         Task::truncate();
         #User::truncate();
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

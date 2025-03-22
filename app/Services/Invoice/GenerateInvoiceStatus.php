@@ -19,7 +19,8 @@ class GenerateInvoiceStatus
     public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
-        $this->price = app(InvoiceCalculator::class, ['invoice' => $invoice])->getTotalPrice();
+        $invoicecalcultor=new InvoiceCalculator($invoice);
+        $this->price =  $invoicecalcultor->getTotalPrice();
         $this->sum = (int)$this->invoice->payments()->sum('amount');
     }
 

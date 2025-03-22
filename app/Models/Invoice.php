@@ -35,6 +35,7 @@ class Invoice extends Model
         'source_type',
         'external_id',
         'offer_id',
+        'pourcentagereduction'
     ];
 
     protected $dates = [
@@ -149,6 +150,8 @@ class Invoice extends Model
 
         return true;
     }
+
+
 
     public function scopePastDueAt($query)
     {

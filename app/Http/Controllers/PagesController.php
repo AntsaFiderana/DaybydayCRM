@@ -35,6 +35,8 @@ class PagesController extends Controller
 
         $tasks = Task::whereBetween('created_at', [$startDate, now()])->get();
         $leads = Lead::whereBetween('created_at', [$startDate, now()])->get();
+
+
         foreach ($tasks as $task) {
             $datasheet[$task->created_at->format(carbonDate())]["monthly"]["tasks"]++;
         }

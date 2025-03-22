@@ -7,11 +7,12 @@ use App\Models\Integration;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\Invoice\GenerateInvoiceStatus;
+use App\Services\Invoice\InvoiceCalculator;
 use Carbon\Carbon;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Ramsey\Uuid\Uuid;
-
+use App\Repositories\Money\Money;
 class PaymentsController extends Controller
 {
     /**
@@ -54,24 +55,40 @@ class PaymentsController extends Controller
             return redirect()->route('invoices.show', $invoice->external_id);
         }
 
-        $payment = Payment::create([
-            'external_id' => Uuid::uuid4()->toString(),
-            'amount' => $request->amount * 100,
-            'payment_date' => Carbon::parse($request->payment_date),
-            'payment_source' => $request->source,
-            'description' => $request->description,
-            'invoice_id' => $invoice->id
-        ]);
-        $api = Integration::initBillingIntegration();
-        if ($api && $invoice->integration_invoice_id) {
-            $result = $api->createPayment($payment);
-            $payment->integration_payment_id = $result["Guid"];
-            $payment->integration_type = get_class($api);
-            $payment->save();
-        }
-        app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
+        $invoicecalculator = new InvoiceCalculator($invoice);
 
-        session()->flash('flash_message', __('Payment successfully added'));
+        $amountdue=$invoicecalculator->getAmountDue();
+        $newpaymentamount=$request->amount * 100;
+
+        if($newpaymentamount > $amountdue->getAmount()){
+            session()->flash('flash_message_warning', " Amount exceeds due amount .Remaining amount to be paid:  " .$amountdue ->getAmount()/100 ." ".$amountdue->getCurrency()->getCode());
+        }
+        else{
+            $payment = Payment::create([
+                'external_id' => Uuid::uuid4()->toString(),
+                'amount' => $request->amount * 100,
+                'payment_date' => Carbon::parse($request->payment_date),
+                'payment_source' => $request->source,
+                'description' => $request->description,
+                'invoice_id' => $invoice->id
+            ]);
+
+
+            $api = Integration::initBillingIntegration();
+            if ($api && $invoice->integration_invoice_id) {
+                $result = $api->createPayment($payment);
+                $payment->integration_payment_id = $result["Guid"];
+                $payment->integration_type = get_class($api);
+                $payment->save();
+            }
+            app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
+
+            session()->flash('flash_message', __('Payment successfully added'));
+        }
+
+
         return redirect()->back();
     }
+
+
 }
