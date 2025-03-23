@@ -39,8 +39,6 @@ class ProductService
         });
 
 
-
-
         #var_dump($result);
         return $result;
 

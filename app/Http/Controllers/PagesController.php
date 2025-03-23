@@ -49,7 +49,7 @@ class PagesController extends Controller
         } else {
             $absences = Absence::with('user')->groupBy('user_id')->where('start_at', '>=', today())->orWhere('end_at', '>', today())->get();
         }
-
+        #var_dump($datasheet);
         return view('pages.dashboard')
             ->withUsers(User::with(['department'])->get())
             ->withDatasheet($datasheet)

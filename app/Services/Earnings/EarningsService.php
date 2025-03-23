@@ -2,6 +2,8 @@
 
 namespace App\Services\Earnings;
 
+use App\Repositories\Money\Money;
+use App\Repositories\Money\MoneyConverter;
 use Illuminate\Support\Facades\DB;
 
 class EarningsService
@@ -14,9 +16,10 @@ class EarningsService
             )
             ->whereYear('created_at', $year)
             ->whereMonth('created_at', $month)
-            ->get();
+            ->first();
+        $earning=$earnings && $earnings->total_earnings !== null ? $earnings->total_earnings : 0;
 
-        return $earnings;
+        return app(MoneyConverter::class, ['money' => new Money($earning)])->format();
     }
 
     public function getDaybyDayEarnings($year,$month)
@@ -42,8 +45,9 @@ class EarningsService
                 DB::raw('SUM(amount) as total_earnings')
             )
             ->whereYear('created_at', $year)
-            ->get();
+            ->first();
+        $earning=$earnings && $earnings->total_earnings !== null ? $earnings->total_earnings : 0;
 
-        return $earnings;
+        return app(MoneyConverter::class, ['money' => new Money($earning)])->format();
     }
 }

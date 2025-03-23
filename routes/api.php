@@ -26,4 +26,4 @@ Route::post('configuration-remise', [ConfigurationRemiseController::class, 'upda
 
 Route::post('login',[LoginController::class,'apiLogin'])->name('loginapi');
 
-Route::get('dashboard',[\App\Api\v1\Controllers\DashboardApi::class,'index'])->name('dashboard');
+Route::get('dashboard',[\App\Api\v1\Controllers\DashboardApi::class,'index'])->name('dashboard.api');
