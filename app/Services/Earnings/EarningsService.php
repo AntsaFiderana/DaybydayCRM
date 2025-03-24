@@ -14,8 +14,9 @@ class EarningsService
             ->select(
                 DB::raw('SUM(amount) as total_earnings')
             )
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
+            ->whereYear('payment_date', $year)
+            ->whereMonth('payment_date', $month)
+            ->where('deleted_at', null)
             ->first();
         $earning=$earnings && $earnings->total_earnings !== null ? $earnings->total_earnings : 0;
 
@@ -26,16 +27,44 @@ class EarningsService
     {
         $earnings = DB::table('payments')
             ->select(
-                DB::raw('DATE(created_at) as daty'), // Extraire le jour
+                DB::raw('DATE(payment_date) as daty'), // Extraire le jour
                 DB::raw('SUM(amount) as total_earnings') // Somme des montants
             )
-            ->whereYear('created_at', $year)
-            ->whereMonth('created_at', $month)
-            ->groupBy(DB::raw('DATE(created_at)')) // Regrouper par jour
+            ->whereYear('payment_date', $year)
+            ->whereMonth('payment_date', $month)
+            ->where('deleted_at', null)
+            ->groupBy(DB::raw('DATE(payment_date)')) // Regrouper par jour
             ->orderBy('daty')
             ->get();
 
         return $earnings;
+    }
+
+    public function getGlobalEarnings()
+    {
+        $earnings = DB::table('payments')
+            ->select(
+                DB::raw('SUM(amount) as total_earnings')
+            )
+            ->where('deleted_at', null)
+            ->first();
+        $earning=$earnings && $earnings->total_earnings !== null ? $earnings->total_earnings : 0;
+
+        return app(MoneyConverter::class, ['money' => new Money($earning)])->format();
+    }
+
+
+    public function loadPayments($year,$month)
+    {
+        $earnings = DB::table('payments');
+        if($year != null){
+            $earnings = $earnings->whereYear('payment_date', $year);
+        }
+        if($month != null){
+            $earnings = $earnings->whereMonth('payment_date', $month);
+        }
+        $earnings = $earnings->where('deleted_at', null);
+        return $earnings->get();
     }
 
     public function getAnnualEarnings($year)
@@ -44,7 +73,8 @@ class EarningsService
             ->select(
                 DB::raw('SUM(amount) as total_earnings')
             )
-            ->whereYear('created_at', $year)
+            ->whereYear('payment_date', $year)
+            ->where('deleted_at', null)
             ->first();
         $earning=$earnings && $earnings->total_earnings !== null ? $earnings->total_earnings : 0;
 

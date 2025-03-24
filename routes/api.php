@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\PaymentsController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ConfigurationRemiseController;
 /*
@@ -27,3 +28,10 @@ Route::post('configuration-remise', [ConfigurationRemiseController::class, 'upda
 Route::post('login',[LoginController::class,'apiLogin'])->name('loginapi');
 
 Route::get('dashboard',[\App\Api\v1\Controllers\DashboardApi::class,'index'])->name('dashboard.api');
+
+
+Route::group(['prefix'=>"payments"],function(){
+    Route::get("/",[PaymentsController::class,'getPayments'])->name('api.payments.getAll');
+    Route::post("/delete/{payment}",[PaymentsController::class,'destroyAPI'])->name('api.payments.destroy');
+    Route::post("/{payment}",[PaymentsController::class,'update'])->name('api.payments.update');
+});

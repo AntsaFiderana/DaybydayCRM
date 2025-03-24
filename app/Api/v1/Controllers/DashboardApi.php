@@ -47,7 +47,7 @@ class DashboardApi extends Controller
         $daybydayearnings=$earningservice->getDaybyDayEarnings($year,$month);
         $monthearnings=$earningservice->getMonthlyEarnings($year,$month);
         $annualearnings=$earningservice->getAnnualEarnings($year);
-
+        $globalearnings=$earningservice->getGlobalEarnings();
 
 
 
@@ -68,7 +68,8 @@ class DashboardApi extends Controller
             'bestproducts' => $bestproducts,
             'daybydayearnings' => $daybydayearnings,
             'monthlyearnings' => $monthearnings,
-            'annualearnings' => $annualearnings
+            'annualearnings' => $annualearnings,
+            'globalearnings' => $globalearnings,
         ]);
 
     }

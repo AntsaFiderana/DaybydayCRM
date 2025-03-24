@@ -6,6 +6,7 @@ use App\Http\Requests\Payment\PaymentRequest;
 use App\Models\Integration;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Services\Earnings\EarningsService;
 use App\Services\Invoice\GenerateInvoiceStatus;
 use App\Services\Invoice\InvoiceCalculator;
 use Carbon\Carbon;
@@ -25,11 +26,77 @@ class PaymentsController extends Controller
         //
     }
 
+
+    public function getPayments(Request $request)
+    {
+        $month=$request->query('month', null);
+        $year=$request->query('year', null);
+
+        $myearning=new EarningsService();
+        $payments=$myearning->loadPayments($year,$month);
+        return response()->json($payments);
+    }
+
+
+    public function update(Request $request, $external_id)
+    {
+        try {
+            $payment= Payment::getByExternalId($external_id);
+            if (!$payment) {
+                return response()->json([
+                    'message' => 'Payment not found!',
+                    'success' => false
+                ]);
+            }
+            #echo($request->amount);
+            $payment->amount = $request->amount ;
+            $payment->save();
+            return response()->json([
+                'message' => 'Payment updated successfully!',
+                'success' => true,
+            ]);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'success' => false
+            ]);
+        }
+
+    }
+
+
+
+    public function destroyAPI( $external_id)
+    {
+
+        $payment= Payment::getByExternalId($external_id);
+        if($payment){
+            $payment->delete();
+            return response()->json([
+                'success' => true,
+                'message' => __('Payment successfully deleted')
+            ]);
+        }
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => __('Payment not found')
+            ]);
+        }
+
+    }
+
+
+
+
+
+
     /**
      * Remove the specified resource from storage.
      *
      * @param \App\Models\Payment $payment
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      * @throws \Exception
      */
     public function destroy(Payment $payment)
@@ -42,10 +109,10 @@ class PaymentsController extends Controller
         if ($api) {
             $api->deletePayment($payment);
         }
-
+        echo $payment->id;
         $payment->delete();
         session()->flash('flash_message', __('Payment successfully deleted'));
-        return redirect()->back();
+        //return redirect()->back();
     }
 
     public function addPayment(PaymentRequest $request, Invoice $invoice)
@@ -55,22 +122,16 @@ class PaymentsController extends Controller
             return redirect()->route('invoices.show', $invoice->external_id);
         }
 
-        $invoicecalculator = new InvoiceCalculator($invoice);
 
-        $amountdue=$invoicecalculator->getAmountDue();
-        $newpaymentamount=$request->amount * 100;
-
-        if($newpaymentamount > $amountdue->getAmount()){
-            session()->flash('flash_message_warning', " Amount exceeds due amount .Remaining amount to be paid:  " .$amountdue ->getAmount()/100 ." ".$amountdue->getCurrency()->getCode());
-        }
-        else{
+        try {
             $payment = Payment::create([
                 'external_id' => Uuid::uuid4()->toString(),
+                'invoice_id' => $invoice->id,
                 'amount' => $request->amount * 100,
                 'payment_date' => Carbon::parse($request->payment_date),
                 'payment_source' => $request->source,
-                'description' => $request->description,
-                'invoice_id' => $invoice->id
+                'description' => $request->description
+
             ]);
 
 
@@ -84,10 +145,13 @@ class PaymentsController extends Controller
             app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
 
             session()->flash('flash_message', __('Payment successfully added'));
+
         }
-
-
-        return redirect()->back();
+        catch (\Exception $e)
+        {
+            session()->flash('flash_message_warning', $e->getMessage());
+        }
+        #return redirect()->back();
     }
 
 

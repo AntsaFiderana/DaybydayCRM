@@ -166,6 +166,6 @@ class Invoice extends Model
     public function getTotalPriceAttribute()
     {
         $invoiceCalculator = new InvoiceCalculator($this);
-        return $invoiceCalculator->getTotalPrice();
+        return $invoiceCalculator->getFinalPrice();
     }
 }

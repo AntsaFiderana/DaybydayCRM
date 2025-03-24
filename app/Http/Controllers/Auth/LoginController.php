@@ -48,11 +48,11 @@ class LoginController extends Controller
                 $user = $this->guard()->user();
                 return response()->json(['success' => true, 'message' => 'connexion', 'user' => $user]);
             }
-            #echo("attemp to connect");
-            return response()->json(['success' => false, 'message' => 'Authentication failed']);
+
+            return response()->json(['success' => false, 'message' => 'Authentication failed.Please try again.']);
         }
         catch (ValidationException $e) {
-            return response()->json(['success' => false, 'message' => 'Login failed: '.$e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Login failed ','errors' => $e->errors()]);
         }
         catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Login failed: '.$e->getMessage()]);
