@@ -107,6 +107,8 @@ class InvoicesController extends Controller
     }
 
 
+
+
     /**
      * Update the sent status
      * @param Request $request

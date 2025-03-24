@@ -18,10 +18,16 @@ class GenerateInvoiceStatus
 
     public function __construct(Invoice $invoice)
     {
+
         $this->invoice = $invoice;
         $invoicecalcultor=new InvoiceCalculator($invoice);
-        $this->price =  $invoicecalcultor->getTotalPrice();
+
+
+        $this->price =  $invoicecalcultor->getFinalPrice();
+
+
         $this->sum = (int)$this->invoice->payments()->sum('amount');
+
     }
 
     public function createStatus()
@@ -62,7 +68,7 @@ class GenerateInvoiceStatus
 
     public function isPaid(): bool
     {
-        return $this->price->getAmount() === $this->sum;
+        return $this->price->getAmount() == $this->sum;
     }
 
     public function isUnPaid(): bool

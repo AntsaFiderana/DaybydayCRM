@@ -49,6 +49,9 @@ class PaymentsController extends Controller
                 ]);
             }
             #echo($request->amount);
+
+            $invoice=$payment->invoice()->first();
+            app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
             $payment->amount = $request->amount ;
             $payment->save();
             return response()->json([
@@ -72,6 +75,8 @@ class PaymentsController extends Controller
 
         $payment= Payment::getByExternalId($external_id);
         if($payment){
+            $invoice=$payment->invoice()->first();
+            app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
             $payment->delete();
             return response()->json([
                 'success' => true,
@@ -109,10 +114,12 @@ class PaymentsController extends Controller
         if ($api) {
             $api->deletePayment($payment);
         }
-        echo $payment->id;
+        #echo $payment->id;
+        $invoice=$payment->invoice()->first();
         $payment->delete();
         session()->flash('flash_message', __('Payment successfully deleted'));
-        //return redirect()->back();
+        app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
+        return redirect()->back();
     }
 
     public function addPayment(PaymentRequest $request, Invoice $invoice)
@@ -142,6 +149,8 @@ class PaymentsController extends Controller
                 $payment->integration_type = get_class($api);
                 $payment->save();
             }
+
+
             app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
 
             session()->flash('flash_message', __('Payment successfully added'));
@@ -149,9 +158,10 @@ class PaymentsController extends Controller
         }
         catch (\Exception $e)
         {
+            #echo $e->getMessage();
             session()->flash('flash_message_warning', $e->getMessage());
         }
-        #return redirect()->back();
+        return redirect()->back();
     }
 
 

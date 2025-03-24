@@ -6,6 +6,7 @@ use App\Models\Appointment;
 use App\Models\BusinessHour;
 use App\Models\Client;
 use App\Models\Comment;
+use App\Models\ConfigurationRemise;
 use App\Models\Contact;
 use App\Models\CreditLine;
 use App\Models\CreditNote;
@@ -63,6 +64,7 @@ class ReinitialiseController extends Controller
         Payment::truncate();
         #Permission::truncate();
         #PermissionRole::truncate();
+        ConfigurationRemise::truncate();
         Product::truncate();
         Project::truncate();
         #Role::truncate();

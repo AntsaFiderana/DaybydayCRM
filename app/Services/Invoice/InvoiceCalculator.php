@@ -47,9 +47,16 @@ class InvoiceCalculator
 
     public function getFinalPrice(): Money
     {
+
+
         $price=$this->getTotalPrice()->getAmount();
+
+
         $pourcentage=$this->invoice->pourcentagereduction;
+
+
         $result=$price-($price*($pourcentage/100));
+
         return new Money($result);
     }
 
