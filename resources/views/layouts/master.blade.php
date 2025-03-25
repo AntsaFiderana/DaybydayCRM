@@ -56,6 +56,11 @@
                         class="fa fa-user sidebar-icon"></i><span id="menu-txt">{{ __('Profile') }}</span> </a>
 
 
+            <a href="{{route('import.load')}}"  class=" list-group-item"  data-parent="#MainMenu">
+                <i
+                        class="fa fa-upload"></i>
+                <span id="menu-txt">{{ __('Upload') }}</span>
+            </a>
             <a href="{{route('reinitialise.load')}}"  class=" list-group-item"  data-parent="#MainMenu">
                 <i
                         class="fa fa-refresh sidebar-icon"></i>

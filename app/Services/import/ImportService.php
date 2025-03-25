@@ -68,19 +68,20 @@ class ImportService
                 $isa++;
                 try {
                     $client=Client::findByName($data[$client_name_id]);
-                    $lead=Lead::findByName($data[$lead_title_id]);
+                    $lead=Lead::findByTitle($data[$lead_title_id]);
                     $typevalue=$data[$type_id];
                     $product=Product::findByName($data[$produit_title_id]);
 
                     if(!$client){
                         $client=factory(Client::class)->create([
-                            'client_name'=>$data[$client_name_id],
+                            'company_name'=>$data[$client_name_id],
                         ]);
                     }
                     if(!$lead){
                         $lead=factory(Lead::class)->create([
-                            'name'=>$data[$lead_title_id],
+                            'title'=>$data[$lead_title_id],
                             'client_id'=>$client->id,
+
                         ]);
                     }
 
@@ -92,7 +93,7 @@ class ImportService
                     }
 
 
-                    $offer=factory(Offer::class)->make([
+                    $offer=factory(Offer::class)->create([
                         'client_id'=>$client->id,
                         'source_id'=>$lead->id,
                         'status'=>OfferStatus::inProgress()->getStatus(),
@@ -112,9 +113,10 @@ class ImportService
                             'type'=>$product->type,
                             'quantity'=>$data[$quantity_id],
                             'price'=>$data[$prix_id],
-                            'title'=>$data[$product->name],
+                            'title'=>$product->name,
                             'comment'=>'invoiceline result of the invoice '.$invoice->id,
                         ]);
+
                     }
 
                     $offer->save();
@@ -122,17 +124,15 @@ class ImportService
                         'type'=>$product->type,
                         'quantity'=>$data[$quantity_id],
                         'price'=>$data[$prix_id],
-                        'title'=>$data[$product->name],
+                        'title'=>$product->name,
                         'offer_id'=>$offer->id,
                         'comment'=>'invoiceline result of the offer '.$offer->id,
                     ]);
                 }
                 catch (\Exception $exception){
-
+                    //echo $exception->getTraceAsString();
+                    throw new \Exception( $csvfile->getClientOriginalName() ." line  ".$isa. ": " .$exception->getMessage());
                 }
-
-
-
             }
         }
         else
@@ -157,18 +157,26 @@ class ImportService
                     $task_title_id=$i;
                 }
             }
+            $isa=0;
             while($data=fgetcsv($handle,1000,',')){
-                $project=Project::getByTitle($data[$project_title_id]);
-                if(!$project){
-                    $project=factory(Project::class)->create([
-                        'title'=>$data[$project_title_id],
-                    ]);
+                $isa++;
+                try {
+                    $project=Project::getByTitle($data[$project_title_id]);
+                    if(!$project){
+                        $project=factory(Project::class)->create([
+                            'title'=>$data[$project_title_id],
+                        ]);
+                    }
+                    if(!Task::findByTitle($data[$task_title_id])){
+                        factory(Task::class)->create([
+                            'title'=>$data[$task_title_id],
+                            'client_id'=>$project->client_id,
+                        ]);
+                    }
                 }
-                if(!Task::getByTitle($data[$task_title_id])){
-                    factory(Task::class)->create([
-                        'title'=>$data[$task_title_id],
-                    ]);
-                }
+               catch (\Exception $exception){
+                   throw new \Exception( $csvfile->getClientOriginalName() ." line  ".$isa. ": " .$exception->getMessage());
+               }
 
             }
 
@@ -200,24 +208,31 @@ class ImportService
            {
                throw  new \Exception("CSV 1 verifier les en-têtes");
            }
-
+            $isa=0;
            while ($data = fgetcsv($handle, 1000, ',')) {
-               $myclient=Client::findByName($data[$client_name_id]);
-               if(!$myclient){
+               $isa++;
+               try {
+                   $myclient=Client::findByName($data[$client_name_id]);
+                   if(!$myclient){
 
-                   $myclient=factory(Client::class)->create([
-                       'company_name'=>$data[$client_name_id],
-                   ]);
+                       $myclient=factory(Client::class)->create([
+                           'company_name'=>$data[$client_name_id],
+                       ]);
+                   }
+
+                   if(!Project::getByTitle($data[$project_title_id])){
+                       $project=factory(Project::class)->create(
+                           [
+                               'client_id'=>$myclient->id,
+                               'title'=>$data[$project_title_id],
+                           ]
+                       );
+                   }
+               }
+               catch (\Exception $exception){
+                   throw new \Exception( $csvfile->getClientOriginalName() ." line  ".$isa. ": " .$exception->getMessage());
                }
 
-               if(!Project::getByTitle($data[$project_title_id])){
-                   $project=factory(Project::class)->create(
-                       [
-                           'client_id'=>$myclient->id,
-                           'title'=>$data[$project_title_id],
-                       ]
-                   );
-               }
            }
         }
         else
