@@ -48,12 +48,14 @@ class PaymentsController extends Controller
                     'success' => false
                 ]);
             }
-            #echo($request->amount);
+
+            $payment->amount = $request->amount ;
+            $payment->save();
+
 
             $invoice=$payment->invoice()->first();
             app(GenerateInvoiceStatus::class, ['invoice' => $invoice])->createStatus();
-            $payment->amount = $request->amount ;
-            $payment->save();
+
             return response()->json([
                 'message' => 'Payment updated successfully!',
                 'success' => true,

@@ -76,7 +76,12 @@ class ReinitialiseController extends Controller
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         return redirect()->route('dashboard');
+        /*$projects=factory(Project::class)->create([
+            'description' => 'Description spécifique de ce projet',
+        ]);
+        return response()->json($projects);*/
     }
+
 }
 
 ?>

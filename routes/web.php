@@ -29,6 +29,10 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
 
+    Route::group(['prefix' => 'import'], function () {
+        Route::get('/', 'ImportController@index')->name('import.load');
+        Route::post('/', 'ImportController@upload')->name('import.import');
+    });
 
 
     /**

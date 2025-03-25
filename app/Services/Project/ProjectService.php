@@ -17,7 +17,11 @@ class ProjectService
     {
         $temp= Project::where('status_id', '11')
             ->count();
-        return ($temp/$this->total)*100;
+       if($this->total!=0)
+       {
+           return ($temp/$this->total)*100;
+       }
+        return 0;
     }
 
     public function getSumInprogress()
@@ -25,27 +29,42 @@ class ProjectService
         $temp= Project::where('status_id', '12')
             ->count();
 
-        return ($temp/$this->total)*100;
+        if($this->total!=0)
+        {
+            return ($temp/$this->total)*100;
+        }
+        return 0;
     }
     public function getSumBlocked()
     {
         $temp= Project::where('status_id', '13')
             ->count();
+        if($this->total!=0)
+        {
+            return ($temp/$this->total)*100;
+        }
+        return 0;
 
-        return ($temp/$this->total)*100;
     }
     public function getSumCanceled()
     {
         $temp= Project::where('status_id', '14')
             ->count();
 
-        return ($temp/$this->total)*100;
+        if($this->total!=0)
+        {
+            return ($temp/$this->total)*100;
+        }
+        return 0;
     }
     public function getSumCompleted()
     {
         $temp= Project::where('status_id', '15')
             ->count();
-
-        return ($temp/$this->total)*100;
+        if($this->total!=0)
+        {
+            return ($temp/$this->total)*100;
+        }
+        return 0;
     }
 }
