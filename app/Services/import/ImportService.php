@@ -73,8 +73,14 @@ class ImportService
                     $product=Product::findByName($data[$produit_title_id]);
 
                     if(!$client){
+                        $user=factory(\App\Models\User::class)->create(
+                            [
+                                'name' => $data[$client_name_id],
+                            ]
+                        );
                         $client=factory(Client::class)->create([
                             'company_name'=>$data[$client_name_id],
+                            'user_id'=>$user->id,
                         ]);
                     }
                     if(!$lead){
@@ -212,11 +218,18 @@ class ImportService
            while ($data = fgetcsv($handle, 1000, ',')) {
                $isa++;
                try {
+
                    $myclient=Client::findByName($data[$client_name_id]);
                    if(!$myclient){
 
+                       $user=factory(\App\Models\User::class)->create(
+                           [
+                               'name' => $data[$client_name_id],
+                           ]
+                       );
                        $myclient=factory(Client::class)->create([
                            'company_name'=>$data[$client_name_id],
+                           'user_id'=>$user->id,
                        ]);
                    }
 

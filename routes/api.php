@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\PaymentsController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ConfigurationRemiseController;
@@ -28,6 +29,8 @@ Route::post('configuration-remise', [ConfigurationRemiseController::class, 'upda
 Route::post('login',[LoginController::class,'apiLogin'])->name('loginapi');
 
 Route::get('dashboard',[\App\Api\v1\Controllers\DashboardApi::class,'index'])->name('dashboard.api');
+
+Route::get('clients', [ClientsController::class, 'getAll'])->name('clients.api');
 
 
 Route::group(['prefix'=>"payments"],function(){

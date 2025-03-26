@@ -29,7 +29,7 @@ class ConfigurationRemiseController extends Controller
         }
         catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'message' => 'Erreur de validation des données: '.$e->errors(),
+                'message' => 'Erreur de validation des données. ','errors'=>$e->errors(),
                 'success' => false,
             ]);
         }
