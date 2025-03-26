@@ -49,6 +49,9 @@ class DashboardApi extends Controller
         $annualearnings=$earningservice->getAnnualEarnings($year);
         $globalearnings=$earningservice->getGlobalEarnings();
 
+        $totalofferwon=Offer::getTotalWon();
+        $totalofferlost=Offer::getTotalLost();
+        $totalinprogress=Offer::getTotalInProgress();
 
 
         return response()->json([
@@ -70,6 +73,9 @@ class DashboardApi extends Controller
             'monthlyearnings' => $monthearnings,
             'annualearnings' => $annualearnings,
             'globalearnings' => $globalearnings,
+            'totalofferwon' => $totalofferwon,
+            'totalofferlost' => $totalofferlost,
+            'totalinprogress' => $totalinprogress,
         ]);
 
     }

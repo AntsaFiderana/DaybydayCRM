@@ -18,7 +18,7 @@ class ImportService
     private $client_name_field="client_name";
     private $lead_title_field="lead_title";
 
-    private $product_name_field="name";
+    private $product_name_field="produit";
 
     private $type_field="type";
     private $prix_field="prix";
@@ -66,6 +66,7 @@ class ImportService
             while ($data = fgetcsv($handle,1000,','))
             {
                 $isa++;
+                #echo $$data[$produit_title_id];
                 try {
                     $client=Client::findByName($data[$client_name_id]);
                     $lead=Lead::findByTitle($data[$lead_title_id]);
@@ -95,6 +96,7 @@ class ImportService
                     {
                         $product=factory(Product::class)->create([
                             'name'=>$data[$produit_title_id],
+                            'price'=>$data[$prix_id],
                         ]);
                     }
 
@@ -116,23 +118,25 @@ class ImportService
                         ]);
                         $invoiceline1=factory(InvoiceLine::class)->create([
                             'invoice_id'=>$invoice->id,
-                            'type'=>$product->type,
+                            'type'=>'invoice',
                             'quantity'=>$data[$quantity_id],
                             'price'=>$data[$prix_id],
                             'title'=>$product->name,
                             'comment'=>'invoiceline result of the invoice '.$invoice->id,
+                            'product_id'=>$product->id,
                         ]);
 
                     }
 
                     $offer->save();
                     $invoiceline=factory(InvoiceLine::class)->create([
-                        'type'=>$product->type,
+                        'type'=>'offers',
                         'quantity'=>$data[$quantity_id],
                         'price'=>$data[$prix_id],
                         'title'=>$product->name,
                         'offer_id'=>$offer->id,
                         'comment'=>'invoiceline result of the offer '.$offer->id,
+                        'product_id'=>$product->id
                     ]);
                 }
                 catch (\Exception $exception){
@@ -177,6 +181,7 @@ class ImportService
                         factory(Task::class)->create([
                             'title'=>$data[$task_title_id],
                             'client_id'=>$project->client_id,
+                            'project_id'=>$project->id,
                         ]);
                     }
                 }

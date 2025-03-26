@@ -27,6 +27,7 @@ class ImportController extends Controller
             $csvfile3=$request->file('file3');
 
             DB::beginTransaction();
+
             $myimportservice=new ImportService();
             $myimportservice->handlefile1($csvfile1);
             $myimportservice->handlefile2($csvfile2);
